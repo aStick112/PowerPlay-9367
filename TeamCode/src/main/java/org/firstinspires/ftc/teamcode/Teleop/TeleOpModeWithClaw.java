@@ -117,11 +117,11 @@ public class TeleOpModeWithClaw extends LinearOpMode {
             mecanumDrive.drive(fL, fR, bL, bR);
 
             // opening/closing of servo
-            if (gamepad1.left_bumper == true){
+            if (gamepad1.left_bumper){
                 // open claw
                 servo.setPosition(1);
             }
-            if (gamepad1.right_bumper == true){
+            if (gamepad1.right_bumper){
                 // close claws
                 servo.setPosition(0);
             }
