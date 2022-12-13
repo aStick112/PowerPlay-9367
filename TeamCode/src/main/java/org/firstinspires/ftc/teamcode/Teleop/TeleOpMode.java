@@ -21,6 +21,7 @@ public class TeleOpMode extends LinearOpMode {
 
     BNO055IMU imu;
     Orientation angles;
+    Servo servo;
 
     public static final transient boolean FIELD_CENTRIC = true;
 
@@ -109,13 +110,23 @@ public class TeleOpMode extends LinearOpMode {
             bL -= gamepad1.right_stick_x;
             bR += gamepad1.right_stick_x;
 
-            // Left trigger down, right trigger pulley up
-            double pulleySpeed = gamepad1.right_trigger - gamepad1.left_trigger;
-            pulley.setPower(pulleySpeed);
 
             //Setting the power of the motors to the variables that were created earlier in this op mode.
             mecanumDrive.drive(fL, fR, bL, bR);
 
+            // Left trigger down, right trigger pulley up
+            double pulleySpeed = gamepad1.right_trigger - gamepad1.left_trigger;
+            pulley.setPower(pulleySpeed);
+
+            // opening/closing of servo
+            if (gamepad1.left_bumper){
+                // open claw
+                servo.setPosition(1);
+            }
+            if (gamepad1.right_bumper){
+                // close claws
+                servo.setPosition(0);
+            }
 
             telemetry.addData("Velocities\n", mecanumDrive.getVelocity() + "\n Pulley " + pulley.getVelocity());
 
