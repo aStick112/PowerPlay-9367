@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.CRServo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
@@ -21,7 +22,7 @@ public class TeleOpMode extends LinearOpMode {
 
     BNO055IMU imu;
     Orientation angles;
-    Servo servo;
+    CRServo servo;
 
     public static final transient boolean FIELD_CENTRIC = true;
 
@@ -36,6 +37,8 @@ public class TeleOpMode extends LinearOpMode {
                 true
         );
 
+        servo = hardwareMap.get(CRServo.class, "clawservo");
+
         // Pulley
         DcMotorEx pulley = hardwareMap.get(DcMotorEx.class, "pulley");
         pulley.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -43,7 +46,6 @@ public class TeleOpMode extends LinearOpMode {
         // Gyroscope
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
-
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
@@ -120,16 +122,15 @@ public class TeleOpMode extends LinearOpMode {
 
             // opening/closing of servo
             if (gamepad1.left_bumper){
-                // open claw
-                servo.setPosition(1);
-            }
-            if (gamepad1.right_bumper){
-                // close claws
-                servo.setPosition(0);
+                servo.setPower(-1);
+            } else if (gamepad1.right_bumper){
+                servo.setPower(1);
+            } else {
+                servo.setPower(0);
             }
 
             telemetry.addData("Velocities\n", mecanumDrive.getVelocity() + "\n Pulley " + pulley.getVelocity());
-
+            telemetry.addData("Servo power", servo.getPower());
             /*
             telemetry.addData("Heading", angles.firstAngle);
             telemetry.addData("Roll", angles.secondAngle);
