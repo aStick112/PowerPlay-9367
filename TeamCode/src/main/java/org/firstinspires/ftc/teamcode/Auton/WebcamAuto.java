@@ -116,10 +116,10 @@ public class WebcamAuto extends LinearOpMode {
         initVuforia();
         initTfod();
 
-        /**
+        /*
          * Activate TensorFlow Object Detection before we wait for the start command.
          * Do it here so that the Camera Stream window will have the TensorFlow annotations visible.
-         **/
+         */
         if (tfod != null) {
             tfod.activate();
 
@@ -129,10 +129,10 @@ public class WebcamAuto extends LinearOpMode {
             // to artificially zoom in to the center of image.  For best results, the "aspectRatio" argument
             // should be set to the value of the images used to create the TensorFlow Object Detection model
             // (typically 16/9).
-            tfod.setZoom(1.0, 16.0/9.0);
+            tfod.setZoom(1.5, 16.0/9.0);
         }
 
-        /** Wait for the game to begin */
+        /* Wait for the game to begin */
         telemetry.addData(">", "Press Play to start op mode");
         telemetry.update();
         waitForStart();
@@ -161,13 +161,13 @@ public class WebcamAuto extends LinearOpMode {
 
                             switch (recognition.getLabel()) {
                                 case "1 Bolt": // 45º Left
-                                    mecanumDrive.drive(0.80, 0.00, 0.00, 0.80);
+                                    mecanumDrive.drive(0.75, 0.00, 0.00, 0.75);
                                     break;
                                 case "2 Bulb": // Straight
-                                    mecanumDrive.drive(0.60,-0.60,-0.60,0.60);
+                                    mecanumDrive.drive(0.50,-0.50,-0.50,0.50);
                                     break;
                                 case "3 Panel":// 45º Right
-                                    mecanumDrive.drive(0.00, -0.80, -0.80, 0.00);
+                                    mecanumDrive.drive(0.00, -0.75, -0.75, 0.00);
                                     break;
                                 default: continue;
                             }
