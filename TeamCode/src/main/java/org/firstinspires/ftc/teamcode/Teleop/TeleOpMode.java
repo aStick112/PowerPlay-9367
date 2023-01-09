@@ -116,7 +116,7 @@ public class TeleOpMode extends LinearOpMode {
             //Setting the power of the motors to the variables that were created earlier in this op mode.
             mecanumDrive.drive(fL, fR, bL, bR);
 
-            // Left trigger down, right trigger pulley up
+            // Left trigger down, right trigger pulley up might be reversed
             double pulleySpeed = gamepad1.right_trigger - gamepad1.left_trigger;
             pulley.setPower(pulleySpeed);
 
