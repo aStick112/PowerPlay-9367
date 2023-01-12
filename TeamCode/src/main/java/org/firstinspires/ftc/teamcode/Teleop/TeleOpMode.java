@@ -80,6 +80,7 @@ public class TeleOpMode extends LinearOpMode {
                 double gpX = gamepad1.left_stick_x;
                 double gpY = gamepad1.left_stick_y;
                 double X, Y;
+/*
 
                 if (gamepad1.dpad_up || gamepad1.dpad_down || gamepad1.dpad_left || gamepad1.dpad_right) r = 1;
                 else r = Math.hypot(gamepad1.left_stick_y, -gamepad1.left_stick_x);
@@ -88,6 +89,7 @@ public class TeleOpMode extends LinearOpMode {
                 else if (gamepad1.dpad_down)  { gpX =  0; gpY =  1; }
                 else if (gamepad1.dpad_left)  { gpX = -1; gpY =  0; }
                 else if (gamepad1.dpad_right) { gpX =  1; gpY =  0; }
+*/
 
                 X = gpX * cosA - gpY * sinA;
                 Y = gpX * sinA + gpY * cosA;
@@ -121,10 +123,19 @@ public class TeleOpMode extends LinearOpMode {
             pulley.setPower(pulleySpeed);
 
             // opening/closing of servo
+/*
             if (gamepad1.left_bumper){
                 servo.setPower(-1);
             } else if (gamepad1.right_bumper){
                 servo.setPower(1);
+            } else {
+                servo.setPower(0);
+            }
+*/
+            if (gamepad1.dpad_down) {
+                servo.setPower(1);
+            } else if (gamepad1.dpad_up) {
+                servo.setPower(-1);
             } else {
                 servo.setPower(0);
             }
