@@ -22,7 +22,7 @@ public class TeleOpMode extends LinearOpMode {
 
     BNO055IMU imu;
     Orientation angles;
-    CRServo servo;
+    Servo servo;
 
     public static final transient boolean FIELD_CENTRIC = true;
 
@@ -37,7 +37,7 @@ public class TeleOpMode extends LinearOpMode {
                 true
         );
 
-        servo = hardwareMap.get(CRServo.class, "clawservo");
+        servo = hardwareMap.get(Servo.class, "clawservo");
 
         // Pulley
         DcMotorEx pulley = hardwareMap.get(DcMotorEx.class, "pulley");
@@ -133,15 +133,13 @@ public class TeleOpMode extends LinearOpMode {
             }
 */
             if (gamepad1.dpad_down) {
-                servo.setPower(1);
+                servo.setPosition(0.0);
             } else if (gamepad1.dpad_up) {
-                servo.setPower(-1);
-            } else {
-                servo.setPower(0);
+                servo.setPosition(0.5);
             }
 
             telemetry.addData("Velocities\n", mecanumDrive.getVelocity() + "\n Pulley " + pulley.getVelocity());
-            telemetry.addData("Servo power", servo.getPower());
+            telemetry.addData("Servo position", servo.getPosition());
             /*
             telemetry.addData("Heading", angles.firstAngle);
             telemetry.addData("Roll", angles.secondAngle);
