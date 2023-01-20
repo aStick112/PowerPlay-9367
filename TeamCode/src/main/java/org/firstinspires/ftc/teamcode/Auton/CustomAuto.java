@@ -84,7 +84,6 @@ public class CustomAuto extends LinearOpMode
             all the way in one direction the sin and cos are the same*/
         double angle = Math.atan2(-x, y) - Math.PI/4;
 
-
         double cosA = Math.cos(gyroAngle);
         double sinA = Math.sin(gyroAngle);
         double gpX = x;
@@ -236,23 +235,32 @@ public class CustomAuto extends LinearOpMode
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
         double gyroAngle = angles.firstAngle;
 
+        double[] powers = new double[4];
+
         /* Actually do something useful */
         if(tagOfInterest.id == LEFT) {
             // trajectory LEFT
-            getPowersXY(0.0, 1.0, 0.5, gyroAngle);
+            powers = getPowersXY(0.0, -1.0, 0.5, gyroAngle);
+            mecanumDrive.drive(powers[0], powers[1], powers[2], powers[3]);
             Util.pause(1500);
-            getPowersXY(-1.0, 0.0, 0.5, gyroAngle);
-            Util.pause(1000);
+
+            powers = getPowersXY(-1.0, 0.0, 0.5, gyroAngle);
+            mecanumDrive.drive(powers[0], powers[1], powers[2], powers[3]);
+            Util.pause(1450);
         } else if(tagOfInterest == null || tagOfInterest.id == MIDDLE) {
             // trajectory MIDDLE
-            getPowersXY(0.0, 1.0, 0.5, gyroAngle);
+            powers = getPowersXY(0.0, -1.0, 0.5, gyroAngle);
+            mecanumDrive.drive(powers[0], powers[1], powers[2], powers[3]);
             Util.pause(1500);
         } else {
             // trajectory RIGHT
-            getPowersXY(0.0, 1.0, 0.5, gyroAngle);
+            powers = getPowersXY(0.0, -1.0, 0.5, gyroAngle);
+            mecanumDrive.drive(powers[0], powers[1], powers[2], powers[3]);
             Util.pause(1500);
-            getPowersXY(1.0, 0.0, 0.5, gyroAngle);
-            Util.pause(1000);
+
+            powers = getPowersXY(1.0, 0.0, 0.5, gyroAngle);
+            mecanumDrive.drive(powers[0], powers[1], powers[2], powers[3]);
+            Util.pause(1450);
         }
 
         mecanumDrive.drive(0,0,0,0);
