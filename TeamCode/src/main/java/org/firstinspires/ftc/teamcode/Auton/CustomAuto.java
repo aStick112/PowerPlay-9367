@@ -21,12 +21,18 @@
 
 package org.firstinspires.ftc.teamcode.Auton;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.Robot.MecanumDrive;
 import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
@@ -34,11 +40,17 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvInternalCamera;
 
+import org.firstinspires.ftc.teamcode.Auton.Util;
+
 import java.util.ArrayList;
 
 @Autonomous
 public class CustomAuto extends LinearOpMode
 {
+    BNO055IMU imu;
+    Orientation angles;
+    CRServo servo;
+
     OpenCvCamera camera;
     AprilTagDetectionPipeline aprilTagDetectionPipeline;
 
@@ -62,6 +74,42 @@ public class CustomAuto extends LinearOpMode
     int RIGHT  = 3;
 
     AprilTagDetection tagOfInterest = null;
+
+    public double[] getPowersXY(double x, double y, double power, double gyroAngle) {
+        //Get the hypotenuse of the right triangle created by the position of the left gamepad stick on the x and y axis
+        double r = power;
+
+            /*Get the angle that the left gamepad stick creates with the horizontal x axis.
+            This angle is then offset by PI/4 so that when the stick is
+            all the way in one direction the sin and cos are the same*/
+        double angle = Math.atan2(-x, y) - Math.PI/4;
+
+
+        double cosA = Math.cos(gyroAngle);
+        double sinA = Math.sin(gyroAngle);
+        double gpX = x;
+        double gpY = y;
+
+
+        double X = gpX * cosA - gpY * sinA;
+        double Y = gpX * sinA + gpY * cosA;
+
+
+        angle = Math.atan2(X, Y) - (Math.PI/4);
+
+
+
+            /*Set the variables for the power of each of the motors to the inverse of either the cos or sin of the angle above,
+            then multiply by the hypotenuse to get speed. The negative sign is there because the output of the gamepad
+            is inverted.*/
+        double fL = -Math.cos(angle)*r;
+        double fR = -Math.sin(angle)*r;
+        double bL = -Math.sin(angle)*r;
+        double bR = -Math.cos(angle)*r;
+
+        return new double[] {fL, fR, bL, bR};
+
+    }
 
     @Override
     public void runOpMode()
@@ -159,6 +207,13 @@ public class CustomAuto extends LinearOpMode
             sleep(20);
         }
 
+        // Gyroscope Init
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        imu.initialize(parameters);
+        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
+
         /*
          * The START command just came in: now work off the latest snapshot acquired
          * during the init loop.
@@ -177,21 +232,33 @@ public class CustomAuto extends LinearOpMode
             telemetry.update();
         }
 
+        //Get gyroscope angles
+        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
+        double gyroAngle = angles.firstAngle;
+
         /* Actually do something useful */
         if(tagOfInterest.id == LEFT) {
-            // trajectory 45º Left
-            mecanumDrive.drive(0.75, 0.00, 0.00, 0.75);
+            // trajectory LEFT
+            getPowersXY(0.0, 1.0, 0.5, gyroAngle);
+            Util.pause(1500);
+            getPowersXY(-1.0, 0.0, 0.5, gyroAngle);
+            Util.pause(1000);
         } else if(tagOfInterest == null || tagOfInterest.id == MIDDLE) {
             // trajectory MIDDLE
-            mecanumDrive.drive(0.50,-0.50,-0.50,0.50);
+            getPowersXY(0.0, 1.0, 0.5, gyroAngle);
+            Util.pause(1500);
         } else {
-            // trajectory 45º RIGHT
-            mecanumDrive.drive(0.00, -0.75, -0.75, 0.00);
+            // trajectory RIGHT
+            getPowersXY(0.0, 1.0, 0.5, gyroAngle);
+            Util.pause(1500);
+            getPowersXY(1.0, 0.0, 0.5, gyroAngle);
+            Util.pause(1000);
         }
 
+        mecanumDrive.drive(0,0,0,0);
 
         /* You wouldn't have this in your autonomous, this is just to prevent the sample from ending */
-        while (opModeIsActive()) {sleep(20);}
+        //while (opModeIsActive()) {sleep(20);}
     }
 
     void tagToTelemetry(AprilTagDetection detection)
