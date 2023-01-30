@@ -55,7 +55,7 @@ import org.firstinspires.ftc.teamcode.Robot.MecanumDrive;
  * IMPORTANT: In order to use this OpMode, you need to obtain your own Vuforia license key as
  * is explained below.
  */
-@Autonomous(name = "Webcam Auto")
+@Autonomous(name = "Default Sleve Auto")
 public class WebcamAuto extends LinearOpMode {
 
     /*

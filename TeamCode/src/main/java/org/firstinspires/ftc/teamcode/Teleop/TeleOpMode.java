@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.CRServo;
 
@@ -42,6 +43,12 @@ public class TeleOpMode extends LinearOpMode {
         // Pulley
         DcMotorEx pulley = hardwareMap.get(DcMotorEx.class, "pulley");
         pulley.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        pulley.setDirection(DcMotorSimple.Direction.REVERSE);
+        pulley.setTargetPositionTolerance(40);
+        // Reset encoder counts kept by motor
+        pulley.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        pulley.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        boolean changed = true;
 
         // Gyroscope
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
@@ -60,6 +67,8 @@ public class TeleOpMode extends LinearOpMode {
 
 
         // AFTER INIT:
+        int pulleyDesiredPosition = 0;
+        int pulleydiff;
 
         while(opModeIsActive()){
             //Get gyroscope angles
@@ -67,7 +76,8 @@ public class TeleOpMode extends LinearOpMode {
             double gyroAngle = angles.firstAngle;
 
             //Get the hypotenuse of the right triangle created by the position of the left gamepad stick on the x and y axis
-            double r = Math.hypot(gamepad1.left_stick_y, -gamepad1.left_stick_x);
+            // Cubic Easing
+            double r = Math.pow(Math.hypot(gamepad1.left_stick_y, -gamepad1.left_stick_x), 5);
 
             /*Get the angle that the left gamepad stick creates with the horizontal x axis.
             This angle is then offset by PI/4 so that when the stick is
@@ -80,16 +90,6 @@ public class TeleOpMode extends LinearOpMode {
                 double gpX = gamepad1.left_stick_x;
                 double gpY = gamepad1.left_stick_y;
                 double X, Y;
-/*
-
-                if (gamepad1.dpad_up || gamepad1.dpad_down || gamepad1.dpad_left || gamepad1.dpad_right) r = 1;
-                else r = Math.hypot(gamepad1.left_stick_y, -gamepad1.left_stick_x);
-
-                if      (gamepad1.dpad_up)    { gpX =  0; gpY = -1; }
-                else if (gamepad1.dpad_down)  { gpX =  0; gpY =  1; }
-                else if (gamepad1.dpad_left)  { gpX = -1; gpY =  0; }
-                else if (gamepad1.dpad_right) { gpX =  1; gpY =  0; }
-*/
 
                 X = gpX * cosA - gpY * sinA;
                 Y = gpX * sinA + gpY * cosA;
@@ -118,11 +118,66 @@ public class TeleOpMode extends LinearOpMode {
             //Setting the power of the motors to the variables that were created earlier in this op mode.
             mecanumDrive.drive(fL, fR, bL, bR);
 
-            // Left trigger down, right trigger pulley up might be reversed
+            // Left trigger -power, right trigger +power
+            /*
             double pulleySpeed = gamepad1.right_trigger - gamepad1.left_trigger;
             pulley.setPower(pulleySpeed);
+             */
 
-            // opening/closing of servo
+
+            if        (gamepad1.a) { //ground
+                pulleyDesiredPosition = 0;
+                changed = true;
+            } else if (gamepad1.b) { // low
+                pulleyDesiredPosition = 1792;
+                changed = true;
+            } else if (gamepad1.x) { // medium
+                pulleyDesiredPosition = 2836;
+                changed = true;
+            } else if (gamepad1.y) { // high
+                pulleyDesiredPosition = 4175;
+                changed = true;
+            }
+
+            pulley.setPower(0.5);
+            pulleydiff = pulley.getCurrentPosition()-pulleyDesiredPosition;
+            if (changed) {
+                if (Math.abs(pulleydiff) > 100) {
+                    pulley.setVelocity(-1000 * Math.tanh(0.025 * (pulleydiff)));
+                } else if (Math.abs(pulleydiff) > 50){
+                    pulley.setVelocity(Math.signum(pulleydiff)*100);
+                } else {
+                    pulley.setVelocity(0);
+                    pulley.setPower(0);
+                    changed = false;
+                }
+            } else {
+                pulley.setVelocity(0);
+                pulley.setPower(0);
+            }
+
+            //pulley.setTargetPosition(pulleyDesiredPosition);
+
+
+            //pulleydiff = Math.abs(pulley.getCurrentPosition()-pulleyDesiredPosition);
+
+//            if ( opModeIsActive() && pulley.isBusy()
+//            && ( (pulley.getCurrentPosition() > pulleyDesiredPosition + 40) || (pulley.getCurrentPosition() < pulleyDesiredPosition - 40) )
+//            ) {
+//                pulley.setPower(0.25);
+//            } else {
+//                pulley.setPower(0);
+//            }
+
+
+            telemetry.addData("position", pulley.getCurrentPosition() + "  busy=" + pulley.isBusy());
+            telemetry.addData("difference", pulley.getCurrentPosition()-pulleyDesiredPosition);
+
+
+
+
+
+            // opening/closing of CRServo
 /*
             if (gamepad1.left_bumper){
                 servo.setPower(-1);
@@ -132,14 +187,16 @@ public class TeleOpMode extends LinearOpMode {
                 servo.setPower(0);
             }
 */
-            if (gamepad1.dpad_down) {
+            if (gamepad1.dpad_down) { //close
                 servo.setPosition(0.0);
-            } else if (gamepad1.dpad_up) {
+            } else if (gamepad1.dpad_up) { //open
                 servo.setPosition(0.5);
             }
 
             telemetry.addData("Velocities\n", mecanumDrive.getVelocity() + "\n Pulley " + pulley.getVelocity());
-            telemetry.addData("Servo position", servo.getPosition());
+            telemetry.addData("r", r);
+            telemetry.addData("Assigned Servo position", servo.getPosition());
+
             /*
             telemetry.addData("Heading", angles.firstAngle);
             telemetry.addData("Roll", angles.secondAngle);

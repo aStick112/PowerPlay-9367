@@ -21,10 +21,11 @@
 
 package org.firstinspires.ftc.teamcode.Auton;
 
+import android.annotation.SuppressLint;
+
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
@@ -44,7 +45,7 @@ import org.firstinspires.ftc.teamcode.Auton.Util;
 
 import java.util.ArrayList;
 
-@Autonomous
+@Autonomous(name = "Custom Sleeve Auto")
 public class CustomAuto extends LinearOpMode
 {
     BNO055IMU imu;
@@ -162,6 +163,8 @@ public class CustomAuto extends LinearOpMode
                         tagOfInterest = tag;
                         tagFound = true;
                         break;
+                    } else {
+                        tagOfInterest = null;
                     }
                 }
 
@@ -242,25 +245,25 @@ public class CustomAuto extends LinearOpMode
             // trajectory LEFT
             powers = getPowersXY(0.0, -1.0, 0.5, gyroAngle);
             mecanumDrive.drive(powers[0], powers[1], powers[2], powers[3]);
-            Util.pause(1500);
+            Util.pause(1400);
 
             powers = getPowersXY(-1.0, 0.0, 0.5, gyroAngle);
             mecanumDrive.drive(powers[0], powers[1], powers[2], powers[3]);
-            Util.pause(1450);
+            Util.pause(1800);
         } else if(tagOfInterest == null || tagOfInterest.id == MIDDLE) {
             // trajectory MIDDLE
             powers = getPowersXY(0.0, -1.0, 0.5, gyroAngle);
             mecanumDrive.drive(powers[0], powers[1], powers[2], powers[3]);
-            Util.pause(1500);
+            Util.pause(1450);
         } else {
             // trajectory RIGHT
             powers = getPowersXY(0.0, -1.0, 0.5, gyroAngle);
             mecanumDrive.drive(powers[0], powers[1], powers[2], powers[3]);
-            Util.pause(1500);
+            Util.pause(1400);
 
             powers = getPowersXY(1.0, 0.0, 0.5, gyroAngle);
             mecanumDrive.drive(powers[0], powers[1], powers[2], powers[3]);
-            Util.pause(1450);
+            Util.pause(1800);
         }
 
         mecanumDrive.drive(0,0,0,0);
@@ -269,6 +272,7 @@ public class CustomAuto extends LinearOpMode
         //while (opModeIsActive()) {sleep(20);}
     }
 
+    @SuppressLint("DefaultLocale")
     void tagToTelemetry(AprilTagDetection detection)
     {
         telemetry.addLine(String.format("\nDetected tag ID=%d", detection.id));
