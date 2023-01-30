@@ -142,11 +142,11 @@ public class TeleOpMode extends LinearOpMode {
             pulley.setPower(0.5);
             pulleydiff = pulley.getCurrentPosition()-pulleyDesiredPosition;
             if (changed) {
-                if (Math.abs(pulleydiff) > 100) {
+                if (Math.abs(pulleydiff) > 100) { // Above 100
                     pulley.setVelocity(-1000 * Math.tanh(0.025 * (pulleydiff)));
-                } else if (Math.abs(pulleydiff) > 50){
+                } else if (Math.abs(pulleydiff) > 50){ // Between 100-50
                     pulley.setVelocity(Math.signum(pulleydiff)*100);
-                } else {
+                } else { // Below 50
                     pulley.setVelocity(0);
                     pulley.setPower(0);
                     changed = false;
