@@ -125,16 +125,16 @@ public class TeleOpMode extends LinearOpMode {
              */
 
 
-            if        (gamepad1.a) { //ground
+            if        (gamepad2.a) { //ground
                 pulleyDesiredPosition = 0;
                 changed = true;
-            } else if (gamepad1.b) { // low
+            } else if (gamepad2.b) { // low
                 pulleyDesiredPosition = 1792;
                 changed = true;
-            } else if (gamepad1.x) { // medium
+            } else if (gamepad2.x) { // medium
                 pulleyDesiredPosition = 2836;
                 changed = true;
-            } else if (gamepad1.y) { // high
+            } else if (gamepad2.y) { // high
                 pulleyDesiredPosition = 4175;
                 changed = true;
             }
@@ -179,17 +179,17 @@ public class TeleOpMode extends LinearOpMode {
 
             // opening/closing of CRServo
 /*
-            if (gamepad1.left_bumper){
+            if (gamepad2.left_bumper){
                 servo.setPower(-1);
-            } else if (gamepad1.right_bumper){
+            } else if (gamepad2.right_bumper){
                 servo.setPower(1);
             } else {
                 servo.setPower(0);
             }
 */
-            if (gamepad1.dpad_down) { //close
+            if (gamepad2.dpad_down) { //close
                 servo.setPosition(0.0);
-            } else if (gamepad1.dpad_up) { //open
+            } else if (gamepad2.dpad_up) { //open
                 servo.setPosition(0.5);
             }
 
